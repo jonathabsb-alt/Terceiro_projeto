@@ -1,0 +1,42 @@
+:root {
+  --gap: 1rem;
+}
+main#app {
+  min-height: 60vh;
+}
+.nav-active {
+  text-decoration: underline;
+  font-weight: 600;
+}
+.card {
+  border: 1px solid var(--pico-muted-border-color);
+  padding: var(--gap);
+  border-radius: .75rem;
+}
+
+.form-error {
+  color: #b00020;
+  font-size: .9rem;
+  margin-top: .25rem;
+}
+.input-invalid {
+  border-color: #b00020;
+}
+
+.toast {
+  position: fixed;
+  right: var(--gap);
+  bottom: var(--gap);
+  padding: .75rem 1rem;
+  border-radius: .5rem;
+  background: #111;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: .2s;
+  z-index: 1000;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
