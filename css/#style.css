@@ -40,3 +40,6 @@ main#app {
   opacity: 1;
   transform: translateY(0);
 }
+body {
+  background-color: red;
+}
