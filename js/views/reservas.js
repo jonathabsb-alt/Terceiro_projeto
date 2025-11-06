@@ -5,6 +5,9 @@ import { toast, $ } from '../utils.js';
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
+let currentFilter = 'todas';        // 'todas' | 'ativas' | 'concluídas'
+let currentSort = 'checkin-asc';    // 'checkin-asc' | 'checkin-desc'
+
 export async function ReservasView() {
   const reservas = Store.all();
 
@@ -44,7 +47,29 @@ export async function ReservasView() {
         <button type="submit">Cadastrar reserva</button>
       </form>
 
-      <div class="card" id="reserva-list">
+      <div class="card" style="margin-top:1rem;">
+        <h3>Opções de visualização</h3>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+          <label style="flex:1; min-width:160px;">
+            Filtro por status
+            <select id="filtro-status">
+              <option value="todas">Todas</option>
+              <option value="ativas">Ativas</option>
+              <option value="concluídas">Concluídas</option>
+            </select>
+          </label>
+
+          <label style="flex:1; min-width:160px;">
+            Ordenar por data
+            <select id="ordenacao-data">
+              <option value="checkin-asc">Check-in (mais antiga primeiro)</option>
+              <option value="checkin-desc">Check-in (mais recente primeiro)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="card" id="reserva-list" style="margin-top:1rem;">
         <h3>Lista de reservas</h3>
         <ul>
           ${repeat(reservas, r => renderItem(r))}
@@ -77,6 +102,25 @@ function renderItem(r) {
 function initPage() {
   const form = $('#reserva-form');
   const validator = new FormValidator(form);
+
+  const filtroStatus = $('#filtro-status');
+  const ordenacaoData = $('#ordenacao-data');
+
+  if (filtroStatus) {
+    filtroStatus.value = currentFilter;
+    filtroStatus.addEventListener('change', () => {
+      currentFilter = filtroStatus.value;
+      renderList();
+    });
+  }
+
+  if (ordenacaoData) {
+    ordenacaoData.value = currentSort;
+    ordenacaoData.addEventListener('change', () => {
+      currentSort = ordenacaoData.value;
+      renderList();
+    });
+  }
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -130,16 +174,36 @@ function initPage() {
     }
 
     if (e.target.matches('.btn-delete')) {
+      if (!confirm('Tem certeza que deseja excluir esta reserva?')) return;
       Store.remove(id);
       renderList();
       toast('Reserva excluída.');
     }
   });
+
+  renderList();
 }
 
 function renderList() {
-  const reservas = Store.all();
+  let reservas = Store.all();
+
+  if (currentFilter === 'ativas') {
+    reservas = reservas.filter(r => r.status === 'ativa');
+  } else if (currentFilter === 'concluídas') {
+    reservas = reservas.filter(r => r.status === 'concluída');
+  }
+
+  reservas.sort((a, b) => {
+    const da = new Date(a.checkin);
+    const db = new Date(b.checkin);
+    if (currentSort === 'checkin-asc') {
+      return da - db;
+    }
+    return db - da;
+  });
+
   const ul = document.querySelector('#reserva-list ul');
+  if (!ul) return;
   ul.innerHTML = reservas.map(r => renderItem(r)).join('');
 }
 
