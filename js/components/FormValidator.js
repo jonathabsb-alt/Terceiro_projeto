@@ -8,14 +8,14 @@ export class FormValidator {
         e.preventDefault();
       }
     });
-    this.fields.forEach(f =>
+    this.fields.forEach((f) =>
       f.addEventListener('input', () => this.validateField(f))
     );
   }
 
   validate() {
     let ok = true;
-    this.fields.forEach(f => {
+    this.fields.forEach((f) => {
       if (!this.validateField(f)) ok = false;
     });
     return ok;
